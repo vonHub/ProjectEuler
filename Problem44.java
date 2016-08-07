@@ -15,22 +15,39 @@ import java.util.ArrayList;
 public class Problem44 {
     
     // Pn = n(3n - 1)/2
-    static int range = 0;
+    static int range = 10000;
+    // Strategy for tomorrow:
+    // Build list of pent numbers.
+    // Check adjacent pairs for pentagonal differences.
+    // Check for pentagonal sums. If successful, done.
+    // Then try adjacent + 1 pairs.
+    // Repeat until success.
     
     public static void main(String[] args) {
-        int d = range;
-        for (int x = 1; x <= range; x++) {
-            int px = getPentagonNumber(x);
-            for (int y = 1; y <= range; y++) {
-                int py = getPentagonNumber(y);
-                if (isPentagonal(px + py) && isPentagonal(Math.abs(py-px))) {
-                    if (Math.abs(px - py) < d) {
-                        d = Math.abs(px - py);
-                    }
+        int d = 1000000;
+        int x = 1;
+        int px = 1;
+        int py = 0;
+        for (int y = 1; y <= range; y++) {
+            py = getPentagonNumber(y);
+            while (px < getPentagonNumber(y + 1) - py) {
+                x++;
+                px = getPentagonNumber(x);
+            }
+            int tempx = x;
+            for (; x < y; x++) {
+                px = getPentagonNumber(x);
+                System.out.println(Math.abs(py - px));
+                if (isPentagonal(px + py) && isPentagonal(Math.abs(px - py))) {
+                    if (Math.abs(px - py) < d) d = Math.abs(px - py);
+                    System.out.println("Success: " + px + ", " + py);
                 }
             }
+            x = tempx;
+            px = getPentagonNumber(x);
         }
-        System.out.println(getPentagonNumber(5));
+        
+        System.out.println(d);
     }
     
     public static int getPentagonNumber(int in) {
@@ -38,14 +55,19 @@ public class Problem44 {
     }
     
     public static boolean isPentagonal(int in) {
-        ArrayList<Double> solutions = quadForm(3, -1, -2*in);
-        for (double s: solutions) {
-            if (s > 0 && s == (int)s) {
-                // Positive integer solution
-                return true;
-            }
+        double test = (Math.sqrt(24 * in + 1) + 1) / 6;
+        return test == (int)test;
+    }
+    
+    public static ArrayList<Integer> buildPentList(int lim) {
+        ArrayList<Integer> pents = new ArrayList();
+        int n = 1;
+        int p;
+        while ((p = getPentagonNumber(n)) < lim) {
+            pents.add(p);
+            n++;
         }
-        return false;
+        return pents;
     }
     
     // Provide solutions for the quadratic formula
